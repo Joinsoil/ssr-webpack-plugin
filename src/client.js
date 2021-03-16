@@ -21,7 +21,21 @@ export default class SSRClientPlugin {
         Object.keys(stats.entrypoints)
           .map(name => stats.entrypoints[name].assets)
           .reduce((assets, all) => all.concat(assets), [])
-          .filter(file => isJS(file) || isCSS(file)),
+          .filter(file => isJS(file) || isCSS(file))
+          .map(function (file) {
+            if (typeof file === "string") {
+              return file;
+            }
+  
+            if (
+              Object.prototype.toString.call(file) === "[object Object]" &&
+              file.name
+            ) {
+              return file.name;
+            }
+  
+            throw new Error(`file structure is not correct: ${file}`);
+          }),
       )
 
       const asyncFiles = allFiles
